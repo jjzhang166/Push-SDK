@@ -1,0 +1,84 @@
+//
+//  Anchor-Prefix.pch
+//  anchor
+//
+//  Created by Eahom on 16/5/31.
+//  Copyright © 2016年 PAJK. All rights reserved.
+//
+
+#ifndef Anchor_Prefix_pch
+#define Anchor_Prefix_pch
+
+#import <Availability.h>
+
+#ifndef __IPHONE_5_0
+#warning "This project uses features only available in iOS SDK 5.0 and later."
+#endif
+
+#ifdef __OBJC__
+
+#import <Foundation/Foundation.h>
+
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+
+#import "JSONOperation.h"
+
+#import "NSObject+Serialize.h"
+
+#import "JKNRefreshControl.h"
+
+#import "EnvironConfig.h"
+#import "AnchorDefine.h"
+
+#import "AppInfo.h"
+#import "UserAccountInfo.h"
+#import "UserDataManagement.h"
+
+#import "JKNLog.h"
+#import "PDAnalyticsManager.h"
+
+#import "AnchorBaseViewController.h"
+#import "PLBaseNavigationController.h"
+
+#import "UIView+HUD.h"
+#import "UIView+JKNAdditions.h"
+#import "UIViewController+HUD.h"
+#import "UIColor+JKNAdditions.h"
+#import "JKNButtonItem.h"
+#import "UIAlertView+JKNBlocks.h"
+#import "UIImage+Color.h"
+#import "UIImage+Size.h"
+#import "UIFont+Custom.h"
+
+#import "UIImageView+WebCache.h"
+#import "MBProgressHUD.h"
+#import "NSData+PHLEncode.h"
+
+#import "CMLocalException.h"
+#import "UIViewController+Custom.h"
+#import "PAApiCode.h"
+#import "NSString+JKNEncode.h"
+
+#import "AFNetworking.h"
+#import "DefaultParams.h"
+#import "HttpRequest.h"
+
+#import "JKNReachability.h"
+
+#import "NSDate+DefaultFormat.h"
+#import "LogEvents.h"
+#import "PAUserDefaultsCenter.h"
+
+#import "JKNAlertView.h"
+#import "NSMutableAttributedString+Attributes.h"
+#import "BoolModel.h"
+
+#import "PureLayout.h"
+
+
+#endif
+
+#define PHLAnchor
+
+#endif /* Anchor_Prefix_pch */

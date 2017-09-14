@@ -1,0 +1,57 @@
+//
+//  PrefixHeader.pch
+//  PAPushSDKDemo
+//
+//  Created by Derek Lix on 21/06/2017.
+//  Copyright © 2017 Derek Lix. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import <Availability.h>
+
+#ifndef __IPHONE_5_0
+#warning "This project uses features only available in iOS SDK 5.0 and later."
+#endif
+
+#ifdef __OBJC__
+
+#import <Foundation/Foundation.h>
+
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import "JKNLog.h"
+
+#import "NSObject+Serialize.h"
+
+#import "EnvironConfig.h"
+#import "AnchorDefine.h"
+
+#import "UIView+HUD.h"
+#import "UIView+JKNAdditions.h"
+#import "UIViewController+HUD.h"
+#import "UIColor+JKNAdditions.h"
+#import "JKNButtonItem.h"
+#import "UIAlertView+JKNBlocks.h"
+#import "UIImage+Color.h"
+#import "UIFont+Custom.h"
+#import "MBProgressHUD.h"
+#import "NSData+PHLEncode.h"
+#import "UIViewController+Custom.h"
+
+#import "AFNetworking.h"
+#import "JKNReachability.h"
+
+#import "PureLayout.h"
+
+
+#endif
+
+#define PHLAnchor
+
+
+#endif /* PrefixHeader_pch */

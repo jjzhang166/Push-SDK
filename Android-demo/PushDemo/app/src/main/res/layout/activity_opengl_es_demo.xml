@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.wangyong.demo.pushdemo.OpenGLESDemoActivity">
+
+    <FrameLayout
+        android:id="@+id/gl_camera_surface_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextureView
+            android:id="@+id/txv_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <EditText
+        android:id="@+id/gl_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="rtmp://livepush.test.pajk.cn/live/eoollo"
+        android:textColor="@color/colorAccent"/>
+
+    <LinearLayout
+        android:id="@+id/beauty_level"
+        android:layout_below="@+id/gl_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/beauty_level_input"
+            android:text="3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/enable_beauty_level"
+            android:text="EnableBeauty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/gl_buttonPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/beauty_level"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/gl_start_push"
+            android:text="StartPush"
+            android:textColor="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/gl_stop_push"
+            android:text="StopPush"
+            android:textColor="@color/colorAccent"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/gl_restart_push"
+            android:text="RestartPush"
+            android:textColor="@color/colorAccent"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/gl_denoise"
+            android:text="NS-N"
+            android:textColor="@color/colorAccent"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/filter_type"
+        android:layout_below="@+id/gl_buttonPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/filter_type_input"
+            android:text="3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/enable_filter"
+            android:text="EnableBeauty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/file_muxer"
+        android:layout_below="@+id/filter_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/file_muxer_input"
+            android:text="/storage/emulated/0/mux.mp4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/file_muxer_controler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/file_muxer"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/start_mux"
+            android:text="StartMux"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/stop_mux"
+            android:text="StopMux"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/logo"
+        android:layout_below="@+id/file_muxer_controler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/logo_input"
+            android:text="ic_launcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/logo_controler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/logo"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/add_logo"
+            android:text="AddLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/remove_logo"
+            android:text="RemoveLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/suface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <LinearLayout
+        android:id="@+id/llayout_host_tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="right">
+        <ImageView
+            android:id="@+id/btn_switch_beauty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="OnBtnClicked"
+            android:scaleType="centerInside"
+            android:layout_margin="15dp"
+            android:src="@mipmap/btn_beauty"/>
+        <ImageView
+            android:id="@+id/btn_switch_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="OnBtnClicked"
+            android:scaleType="centerInside"
+            android:layout_margin="15dp"
+            android:src="@mipmap/btn_switch"/>
+
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="OnBtnClicked"
+            android:scaleType="centerInside"
+            android:layout_margin="15dp"
+            android:src="@mipmap/btn_close" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txt_rtmp_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/llayout_host_tools"
+        android:layout_margin="15dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@android:color/holo_red_dark"
+        android:text="RTMP"/>
+        <RelativeLayout
+            android:id="@+id/llayout_host_beauty_tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical"
+            android:gravity="start"
+            android:weightSum="1">
+            <TextView
+                android:id="@+id/mopi_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="磨皮"/>
+            <TextView
+                android:id="@+id/mopi_value_tv"
+                android:text= "0.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/mopi_tv"
+                android:layout_marginRight="10dp"/>
+            <SeekBar
+                android:id="@+id/mopi_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/mopi_value_tv"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                />
+            <TextView
+                android:id="@+id/meibai_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/mopi_tv"
+                android:layout_marginTop="20dp"
+                android:text="美白"/>
+
+            <TextView
+                android:id="@+id/meibai_value_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0"
+                android:layout_alignBaseline="@+id/meibai_tv"
+                android:layout_alignBottom="@+id/meibai_tv"
+                android:layout_toRightOf="@+id/meibai_tv"
+                android:layout_toEndOf="@+id/meibai_tv" />
+
+            <SeekBar
+                android:id="@+id/meibai_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_alignTop="@+id/meibai_tv"
+                android:layout_alignLeft="@+id/mopi_sb"
+                android:layout_alignStart="@+id/mopi_sb" />
+
+
+
+            <TextView
+                android:id="@+id/fennen_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/meibai_tv"
+                android:layout_marginTop="20dp"
+                android:text="粉嫩"/>
+
+
+            <TextView
+                android:id="@+id/fennen_value_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0"
+                android:layout_alignBaseline="@+id/fennen_tv"
+                android:layout_alignBottom="@+id/fennen_tv"
+                android:layout_toRightOf="@+id/fennen_tv"
+                android:layout_toEndOf="@+id/fennen_tv" />
+
+            <SeekBar
+                android:id="@+id/fennen_sb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_alignLeft="@+id/meibai_sb"
+                android:layout_alignStart="@+id/meibai_sb"
+                android:layout_alignTop="@+id/fennen_tv" />
+
+        </RelativeLayout>
+</RelativeLayout>
