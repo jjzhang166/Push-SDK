@@ -1,0 +1,14 @@
+prefix=/Users/wangyong/Code/AppStreaming/ffmpeg/thin/armv7s
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=/Users/wangyong/Code/AppStreaming/ffmpeg/freetype-2.4.10/include/
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 54.31.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil -lm
+Libs.private: 
+Cflags: -I${includedir}

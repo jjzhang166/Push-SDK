@@ -1,0 +1,28 @@
+./obj/local/arm64-v8a/objs/webrtc_audio_processing/__/webrtc/modules/audio_processing/agc/legacy/digital_agc.o: \
+  jni/../webrtc/modules/audio_processing/agc/legacy/digital_agc.c \
+  webrtc/modules/audio_processing/agc/legacy/digital_agc.h \
+  webrtc/common_audio/signal_processing/include/signal_processing_library.h \
+  /opt/android-ndk-r15b/sources/cxx-stl/llvm-libc++/include/string.h \
+  /opt/android-ndk-r15b/sources/cxx-stl/llvm-libc++/include/__config \
+  webrtc/typedefs.h \
+  webrtc/common_audio/signal_processing/include/spl_inl.h \
+  webrtc/system_wrappers/include/compile_assert_c.h webrtc/base/checks.h \
+  webrtc/modules/audio_processing/agc/legacy/gain_control.h
+
+webrtc/modules/audio_processing/agc/legacy/digital_agc.h:
+
+webrtc/common_audio/signal_processing/include/signal_processing_library.h:
+
+/opt/android-ndk-r15b/sources/cxx-stl/llvm-libc++/include/string.h:
+
+/opt/android-ndk-r15b/sources/cxx-stl/llvm-libc++/include/__config:
+
+webrtc/typedefs.h:
+
+webrtc/common_audio/signal_processing/include/spl_inl.h:
+
+webrtc/system_wrappers/include/compile_assert_c.h:
+
+webrtc/base/checks.h:
+
+webrtc/modules/audio_processing/agc/legacy/gain_control.h:

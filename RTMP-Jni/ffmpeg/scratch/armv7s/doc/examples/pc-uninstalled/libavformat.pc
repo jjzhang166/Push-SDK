@@ -1,0 +1,12 @@
+prefix=
+exec_prefix=
+libdir=${pcfiledir}/../../../libavformat
+includedir=/Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 56.40.101
+Requires: libavcodec >= 56.60.100, libswresample >= 1.2.101, libavutil >= 54.31.100
+Conflicts:
+Libs: -L${libdir} -Wl,-rpath,${libdir} -lavformat -framework CoreVideo -framework Foundation -framework AVFoundation -framework CoreMedia -liconv -L/usr/local/Cellar/x264/r2668/lib -lx264 -lfdk-aac -lm -lbz2 -lz -pthread
+Cflags: -I${includedir}

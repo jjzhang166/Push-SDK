@@ -1,0 +1,36 @@
+libavutil/hash.o: \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/hash.c \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/hash.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/adler32.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/attributes.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/crc.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/md5.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/version.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/macros.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/murmur3.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/ripemd.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/sha.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/sha512.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/avstring.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/base64.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/error.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/intreadwrite.h \
+  libavutil/avconfig.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/bswap.h \
+  config.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/aarch64/bswap.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/mem.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/avutil.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/common.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/intmath.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/internal.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/timer.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/log.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/cpu.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/dict.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/pixfmt.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/old_pix_fmts.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/libm.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/intfloat.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/rational.h \
+  /Users/wangyong/Code/AppStreaming/ffmpeg/ffmpeg-2.8.2/libavutil/mathematics.h

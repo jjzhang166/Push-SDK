@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "7d6829ad-61e6-4069-8b05-477d1e957a02++9855",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "7d6829ad-61e6-4069-8b05-477d1e957a02++9855" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "7d6829ad-61e6-4069-8b05-477d1e957a02++9855" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "F1BDCE33-AC90-44C0-BD30-32CD4D3AB90E",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "7d6829ad-61e6-4069-8b05-477d1e957a02++9855" : "AppStreaming\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "MediaRecorder",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "iOS\/MediaRecorder\/1.0\/MediaRecorder\/MediaRecorder.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "svn:\/\/svn.dev.smartcourt.cn\/smartcourt",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7d6829ad-61e6-4069-8b05-477d1e957a02++9855"
+    }
+  ]
+}

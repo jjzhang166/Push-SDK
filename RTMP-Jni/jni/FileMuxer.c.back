@@ -1,0 +1,771 @@
+//
+//  FileMuxer.c
+//  anchor
+//
+//  Created by wangyong on 2017/6/14.
+//
+
+#include "FileMuxer.h"
+
+static void getFileInfo(MuxerHandler* handler, const char *filename)
+{
+
+	char in_filename_v[100];
+	memset(in_filename_v, 0, sizeof(in_filename_v));
+	int i = 0;
+	for(i = 0; i < strlen(filename) - 10; i ++)
+		in_filename_v[i] = filename[i];
+	const char suffix[] = "111.mp4";
+	int j = 0;
+	for(j = 0; j < sizeof(suffix); j ++)
+		in_filename_v[i ++] = suffix[j];
+	printf("LEIXIAOHUA: input name %s\n", in_filename_v);
+
+
+	int ret = 0;
+	AVFormatContext *ifmt_ctx_v = NULL;
+
+	if ((ret = avformat_open_input(&ifmt_ctx_v, in_filename_v, 0, 0)) < 0) {
+		printf( "LEIXIAOHUA: Could not open input file.\n");
+		return;
+	}
+	if ((ret = avformat_find_stream_info(ifmt_ctx_v, 0)) < 0) {
+		printf( "LEIXIAOHUA: Failed to retrieve input stream information\n");
+		return;
+	}
+
+	printf("=========== LEIXIAOHUA: Input Information==========\n");
+	av_dump_format(ifmt_ctx_v, 0, in_filename_v, 0);
+	printf("=========== LEIXIAOHUA: ===========================\n");
+
+	for (int i = 0; i < ifmt_ctx_v->nb_streams; i++) {
+		//Create output AVStream according to input AVStream
+		if(ifmt_ctx_v->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO){
+			AVStream *st = ifmt_ctx_v->streams[i];
+			handler->input_video_st = st;
+
+			printf("LEIXIAOHUA : codec_id %d bit_rate %d width %d height %d den %d num %d gop_size %d pix_fmt %d NV12 %d\n", st->codec->codec_id,
+					st->codec->bit_rate, st->codec->width, st->codec->height, st->time_base.den, st->time_base.num, st->codec->gop_size, st->codec->pix_fmt,
+					AV_PIX_FMT_NV12);
+
+			printf("LEIXIAOHUA: video extra data : ");
+			if(NULL != st->codec->extradata)
+				for(int j = 0; j < st->codec->extradata_size; j++)
+					printf("%X ", st->codec->extradata[j]);
+			printf("\n");
+		} else if(AVMEDIA_TYPE_AUDIO == ifmt_ctx_v->streams[i]->codec->codec_type){
+			AVStream *st = ifmt_ctx_v->streams[i];
+			handler->input_audio_st = st;
+
+			printf("LEIXIAOHUA : frame_size %d per sample %d\n", st->codec->frame_size, av_get_bits_per_sample(st->codec->codec_id));
+
+			printf("LEIXIAOHUA: codec_type %d AUDIO %d sample_fmt %d bit_rate %d sample_rate %d channels %d layout %lld den %d num %d\n", st->codec->codec_type,
+					AVMEDIA_TYPE_AUDIO, st->codec->sample_fmt, st->codec->bit_rate, st->codec->sample_rate, st->codec->channels, st->codec->channel_layout,
+					st->time_base.den, st->time_base.num);
+			printf("LEIXIAOHUA: audio extra data : ");
+			if(NULL != st->codec->extradata)
+				for(int j = 0; j < st->codec->extradata_size; j++)
+					printf("%X ", st->codec->extradata[j]);
+			printf("\n");
+		}
+	}
+}
+
+#ifdef __IOS__
+long long FileMuxerInit(void)
+#elif defined __Android__
+jlong PackageName(FileMuxerInit)(JNIEnv *env, jobject thiz)
+#endif // __IOS__
+{
+    MuxerHandler *handler = malloc(sizeof(struct MuxerHandler));
+    if(NULL == handler)
+		return ERROR_MEMORY;
+    memset(handler, 0, sizeof(struct MuxerHandler));
+	handler->audioStartPTS = RECORD_INIT_PTS;
+	handler->audioStartDTS = RECORD_INIT_PTS;
+	handler->videoStartPTS = RECORD_INIT_PTS;
+	handler->videoStartDTS = RECORD_INIT_PTS;
+	handler->fileHeaderWrited = false;
+	handler->videoKeyframeArrived = false;
+	handler->audioADIFHeaderWrited = false;
+printf("Eoollo %s:Line %d handler %p\n", __func__, __LINE__, handler);
+
+    pthread_mutex_init(&handler->interface_lock, NULL);
+
+	return (long long)handler;
+}
+
+#ifdef __IOS__
+int FileMuxerUninit(long long nHandler)
+#elif defined __Android__
+jint PackageName(FileMuxerUninit)(JNIEnv *env, jobject thiz, long long nHandler)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+printf("Eoollo %s:Line %d handler %p\n", __func__, __LINE__, handler);
+
+	pthread_mutex_destroy(&handler->interface_lock);
+	free(handler);
+	handler = NULL;
+
+	return ERROR_NONE;
+}
+
+#ifdef __IOS__
+int FileMuxerOpen(long long nHandler, const char *filename)
+#elif defined __Android__
+jint PackageName(FileMuxerOpen)(JNIEnv *env, jobject thiz, jstring jfilename)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+printf("Eoollo %s:Line %d handler %p\n", __func__, __LINE__, handler);
+#ifdef __Android__
+	jboolean isCopy;
+	char* filename = NULL;
+	if(NULL != jfilename)
+		filename = (char*)(*env)->GetStringUTFChars(env, jfilename, &isCopy);
+	if(NULL == filename)
+		goto END;
+#endif //__Android__
+
+    int nRC = ERROR_NONE;
+    av_register_all();
+
+	getFileInfo(handler, filename);
+
+    avformat_alloc_output_context2(&(handler->oc), NULL, NULL, filename);
+    if(NULL == handler->oc || NULL == handler->oc->oformat)
+       goto END;
+
+    handler->oc->oformat->audio_codec = handler->audioInfo.codecID;
+    handler->oc->oformat->video_codec = handler->videoInfo.codecID;
+    handler->fmt = handler->oc->oformat;
+
+	handler->video_st = CreateOutputStream(handler, AVMEDIA_TYPE_VIDEO);
+	handler->audio_st = CreateOutputStream(handler, AVMEDIA_TYPE_AUDIO);
+	if(NULL == handler->audio_st || NULL == handler->video_st)
+	{
+		fprintf(stderr, "Eoollo Could not create audio %p video %p\n", handler->audio_st, handler->video_st);
+		nRC = ERROR_FFMPEG_INIT;
+		goto END;
+	}
+	printf("Eoollo stream ID andio %d video %d\n", handler->audio_st->id, handler->video_st->id);
+
+	av_dump_format(handler->oc, 0, filename, 1);
+    
+	if (!(handler->fmt->flags & AVFMT_NOFILE))
+	{
+		nRC = avio_open(&(handler->oc->pb), filename, AVIO_FLAG_WRITE);
+		if (ERROR_NONE > nRC)
+			goto END;
+	}
+
+    nRC = avformat_write_header(handler->oc, NULL);
+    if(ERROR_NONE > nRC)
+		goto END;
+	handler->fileHeaderWrited = true;
+
+	handler->h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb");
+	handler->aacbsfc =  av_bitstream_filter_init("aac_adtstoasc");
+
+END:
+
+#ifdef __Android__
+	if(NULL != jfilename && NULL != filename)
+		(*env)->ReleaseStringUTFChars (env, jfilename, filename);
+#endif // __Android__
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	if(ERROR_NONE <= nRC)
+		return (long long)handler;
+
+    return ERROR_FFMPEG_INIT;
+}
+
+#ifdef __IOS__
+int FileMuxerClose(long long nHandler)
+#elif defined __Android__
+jlong PackageName(FileMuxerClose)(JNIEnv *env, jobject thiz, jlong handler)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+printf("Eoollo %s:Line %d handler %p\n", __func__, __LINE__, handler);
+    if(NULL != handler->oc)
+    {
+		// We can write tailer unless write header successfully
+		if(true == handler->fileHeaderWrited)
+			av_write_trailer(handler->oc);
+
+		if (NULL != handler->audio_st && NULL != handler->audio_st->codec)
+			avcodec_close(handler->audio_st->codec);
+
+        if (NULL != handler->video_st && NULL != handler->video_st->codec)
+		{
+			if(NULL != handler->video_st->codec->extradata)
+			{
+				free(handler->video_st->codec->extradata);
+				handler->video_st->codec->extradata = NULL;
+			}
+			avcodec_close(handler->video_st->codec);
+		}
+
+		if (NULL != handler->fmt && !(handler->fmt->flags & AVFMT_NOFILE))
+			avio_close(handler->oc->pb);
+
+		avformat_free_context(handler->oc);
+		handler->oc = NULL;
+
+		if(NULL != handler->spsppsInfo.sps)
+			free(handler->spsppsInfo.sps);
+		handler->spsppsInfo.sps = NULL;
+
+		if(NULL != handler->spsppsInfo.pps)
+			free(handler->spsppsInfo.pps);
+		handler->spsppsInfo.pps = NULL;
+
+		memset(handler, 0, sizeof(struct MuxerHandler));
+		handler->audioStartPTS = RECORD_INIT_PTS;
+		handler->audioStartDTS = RECORD_INIT_PTS;
+		handler->videoStartPTS = RECORD_INIT_PTS;
+		handler->videoStartDTS = RECORD_INIT_PTS;
+		handler->fileHeaderWrited = false;
+		handler->videoKeyframeArrived = false;
+		handler->audioADIFHeaderWrited = false;
+	}
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return ERROR_NONE;
+}
+
+#ifdef __IOS__
+int FileMuxerSetAudioParameter(long long nHandler, int codecID, int bitrate, int samplerate, int samplebit, int channels)
+#elif defined __Android__
+jint PackageName(FileMuxerSetAudioParameter)(JNIEnv *env, jobject thiz,
+		jlong nHandler, jint codecID, jint bitrate, jint samplerate, jint samplebit, jint channels)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+printf("Eoollo %s:Line %d handler %p codecID %d bitrate %d samplerate %d samplebit %d channels %d\n", __func__, __LINE__, handler,
+						  codecID, bitrate, samplerate, samplebit, channels);
+	handler->audioInfo.codecID = codecID;
+	handler->audioInfo.bitrate = bitrate;
+	handler->audioInfo.samplerate = samplerate;
+	handler->audioInfo.samplebit = samplebit;
+	handler->audioInfo.channels = channels;
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return ERROR_NONE;
+}
+
+#ifdef __IOS__
+int FileMuxerSetVideoParameter(long long nHandler, int codecID, int bitrate, int width, int height, float fps, int gopsize)
+#elif defined __Android__
+jint PackageName(FileMuxerSetVideoParameter)(JNIEnv *env, jobject thiz,
+		jlong nHandler, jint codecID, jint bitrate, jint width, jint height, jint fps, jint gopsize)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+printf("Eoollo %s:Line %d handler %p codecID %d bitrate %d width %d height %d fps %f gopsize %d\n", __func__, __LINE__, handler,
+						  codecID, bitrate, width, height, fps, gopsize);
+
+	handler->videoInfo.codecID = codecID;
+	handler->videoInfo.bitrate = bitrate;
+	handler->videoInfo.width = width;
+	handler->videoInfo.height = height;
+	handler->videoInfo.fps = fps;
+	handler->videoInfo.gopsize = gopsize;
+    
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return ERROR_NONE;
+}
+
+#ifdef __IOS__
+int FileMuxerSetSPSPPS(long long nHandler, uint8_t* sps, uint8_t *pps, int spsSize, int ppsSize)
+#elif defined __Android__
+jint PackageName(FileMuxerSetSPSPPS)(JNIEnv *env, jobject thiz,
+		jlong nHandler, uint8_t* jsps, uint8_t *jpps, jint spsSize, jint ppsSize)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+printf("Eoollo %s:Line %d handler %p\n", __func__, __LINE__, handler);
+
+	int nRC = ERROR_NONE;
+
+#ifdef __Android__
+	jbyte* sps = 0;        
+	jbyte* pps = 0;      
+
+	if(NULL != jsps)           
+	{
+		sps = (jbyte*)(*env)->GetByteArrayElements(env, jsps, 0);
+		if (NULL == sps)
+		{
+			nRC = ERROR_JAVA_ENV;
+			goto ERR;
+		}
+	}
+
+	if(NULL != jpps)
+	{
+		pps = (jbyte*)(*env)->GetByteArrayElements(env, jpps, 0);
+		if (NULL == pps)
+		{
+			nRC = ERROR_JAVA_ENV;
+			goto ERR;
+		}
+	}
+#endif // __Android__
+	/*
+	uint8_t nal_start[] = {0, 0, 0, 1};
+	//int nal_len = sizeof(nal_start);
+	int nal_len = 0;
+
+	handler->spsppsInfo.spsLen = spsSize + nal_len;
+	handler->spsppsInfo.ppsLen = ppsSize;
+	handler->spsppsInfo.sps = malloc(handler->spsppsInfo.spsLen);
+	handler->spsppsInfo.pps = malloc(handler->spsppsInfo.ppsLen);
+	if(NULL == handler->spsppsInfo.sps || NULL == handler->spsppsInfo.pps)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+
+	memset(handler->spsppsInfo.sps, 0, handler->spsppsInfo.spsLen);
+	memset(handler->spsppsInfo.pps, 0, handler->spsppsInfo.ppsLen);
+	memcpy(handler->spsppsInfo.sps, nal_start, nal_len);
+	memcpy(handler->spsppsInfo.sps + nal_len, sps, spsSize);
+	memcpy(handler->spsppsInfo.pps, pps, ppsSize);
+
+	nal_len = sizeof(nal_start);
+	handler->video_st->codec->extradata_size = handler->spsppsInfo.spsLen + handler->spsppsInfo.ppsLen + nal_len * 2;
+	handler->video_st->codec->extradata = malloc(handler->video_st->codec->extradata_size);
+	if(NULL == handler->video_st->codec->extradata)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+	memset(handler->video_st->codec->extradata, 0, handler->video_st->codec->extradata_size);
+	memcpy(handler->video_st->codec->extradata, nal_start, nal_len);
+	memcpy(handler->video_st->codec->extradata + nal_len, handler->spsppsInfo.sps, handler->spsppsInfo.spsLen);
+	memcpy(handler->video_st->codec->extradata + nal_len + handler->spsppsInfo.spsLen, nal_start, nal_len);
+
+	memcpy(handler->video_st->codec->extradata + nal_len * 2 + handler->spsppsInfo.spsLen, handler->spsppsInfo.pps, handler->spsppsInfo.ppsLen);
+
+	*/
+
+	/*
+	handler->spsppsInfo.spsLen = spsSize + sizeof(nal_start);
+	handler->spsppsInfo.ppsLen = ppsSize;
+	handler->spsppsInfo.sps = malloc(handler->spsppsInfo.spsLen);
+	handler->spsppsInfo.pps = malloc(handler->spsppsInfo.ppsLen);
+	if(NULL == handler->spsppsInfo.sps || NULL == handler->spsppsInfo.pps)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+
+	memset(handler->spsppsInfo.sps, 0, handler->spsppsInfo.spsLen);
+	memset(handler->spsppsInfo.pps, 0, handler->spsppsInfo.ppsLen);
+	memcpy(handler->spsppsInfo.sps, nal_start, sizeof(nal_start));
+	memcpy(handler->spsppsInfo.sps + sizeof(nal_start), sps, spsSize);
+	memcpy(handler->spsppsInfo.pps, pps, ppsSize);
+
+	handler->video_st->codec->extradata_size = handler->spsppsInfo.spsLen + handler->spsppsInfo.ppsLen;
+	handler->video_st->codec->extradata = malloc(handler->video_st->codec->extradata_size);
+	if(NULL == handler->video_st->codec->extradata)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+	memset(handler->video_st->codec->extradata, 0, handler->video_st->codec->extradata_size);
+	memcpy(handler->video_st->codec->extradata, handler->spsppsInfo.sps, handler->spsppsInfo.spsLen);
+	memcpy(handler->video_st->codec->extradata + handler->spsppsInfo.spsLen, handler->spsppsInfo.pps, handler->spsppsInfo.ppsLen);
+	*/
+
+	//ppsSize -= 4;
+
+	handler->spsppsInfo.spsLen = spsSize;
+	handler->spsppsInfo.ppsLen = ppsSize;
+	handler->spsppsInfo.sps = malloc(handler->spsppsInfo.spsLen);
+	handler->spsppsInfo.pps = malloc(handler->spsppsInfo.ppsLen);
+	if(NULL == handler->spsppsInfo.sps || NULL == handler->spsppsInfo.pps)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+
+	memset(handler->spsppsInfo.sps, 0, handler->spsppsInfo.spsLen);
+	memset(handler->spsppsInfo.pps, 0, handler->spsppsInfo.ppsLen);
+	memcpy(handler->spsppsInfo.sps, sps, spsSize);
+	//memcpy(handler->spsppsInfo.pps, pps + 4, ppsSize);
+	memcpy(handler->spsppsInfo.pps, pps, ppsSize);
+
+	handler->video_st->codec->extradata_size = handler->spsppsInfo.spsLen + handler->spsppsInfo.ppsLen;
+	handler->video_st->codec->extradata = malloc(handler->video_st->codec->extradata_size);
+	if(NULL == handler->video_st->codec->extradata)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+	memset(handler->video_st->codec->extradata, 0, handler->video_st->codec->extradata_size);
+	memcpy(handler->video_st->codec->extradata, handler->spsppsInfo.sps, handler->spsppsInfo.spsLen);
+	memcpy(handler->video_st->codec->extradata + handler->spsppsInfo.spsLen, handler->spsppsInfo.pps, handler->spsppsInfo.ppsLen);
+
+	printf("Extra Data : ");
+	for(int i = 0; i < handler->video_st->codec->extradata_size; i ++)
+		printf("%X ", handler->video_st->codec->extradata[i]);
+	printf("\n");
+
+ERR:
+#ifdef __Android__
+	if (NULL != jsps && NULL != sps)
+		(*env)->ReleaseByteArrayElements(env, jsps, sps, 0);
+	if (NULL != jpps && NULL != pps)
+		(*env)->ReleaseByteArrayElements(env, jpps, pps, 0);
+
+#endif // __Android__
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return nRC;
+}
+
+#ifdef __IOS__
+int FileMuxerInputAudioSample(long long nHandler, uint8_t *data, int size, long long pts, long long dts)
+#elif defined __Android__
+jint PackageName(FileMuxerInputAudioSample)(JNIEnv *env, jobject thiz,
+		jlong nHandler, uint8_t *jdata, jint size, jlong pts, jlong dts) 
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+	int nRC = ERROR_NONE;
+	int adts_header = 0;
+
+	if(false == handler->videoKeyframeArrived)
+	{
+		printf("Eoollo Drop audio sample, wait for video I frame!\n");
+		goto ERR;
+	}
+
+	if(RECORD_INIT_PTS == handler->audioStartPTS)
+		handler->audioStartPTS = pts;
+	if(RECORD_INIT_PTS == handler->audioStartDTS)
+		handler->audioStartDTS = dts;
+	pts -= handler->audioStartPTS;
+	dts -= handler->audioStartDTS;
+	pts /= 1000;
+	dts /= 1000;
+
+#ifdef __USER_BLOCK__
+	int random = rand() % 10;
+	if(true == needBlocked && 0 == random)
+	{
+		printf("Eoollo muxer drop Audio !!!\n");
+		goto ERR;
+	}
+#endif // __USER_BLOCK__
+
+	if(NULL == handler->audio_st)
+	{
+		nRC = ERROR_POINTER;
+		goto ERR;
+	}
+
+#ifdef __Android__
+	jbyte* data = 0;      
+	if(NULL != jdata)           
+	{
+		data = (jbyte*)(*env)->GetByteArrayElements(env, jdata, 0);
+		if (NULL == data)
+		{
+			nRC = ERROR_JAVA_ENV;
+			goto ERR;
+		}
+	}
+#endif // __Android__
+
+#ifdef __IOS__ // iOS need remove ADTS header
+	/*
+	if( NULL != data && size > adts_header)
+	{
+		adts_header = sizeof(unsigned char) * 7;
+		unsigned char *body = malloc(size - adts_header + 2);
+		if(NULL != body)
+		{
+			body[0] = 0xAF;
+			body[1] = 0x01;
+			memcpy(&body[2], data + adts_header, size  - adts_header); // Remove ADTS header
+			data = body;
+		}
+		else
+		{
+			nRC = ERROR_MEMORY;
+			adts_header = 0;
+			goto ERR;
+		}
+	}
+	*/
+#endif // __IOS__
+
+	AVPacket pkt = { 0 };
+	av_init_packet(&pkt);
+	pkt.data = data;
+	pkt.size = size;
+	pkt.pts = pts;
+	pkt.dts = dts;
+	pkt.stream_index = handler->audio_st->index;
+
+	if(NULL != handler->aacbsfc && NULL != handler->audio_st->codec)
+		av_bitstream_filter_filter(handler->aacbsfc, handler->audio_st->codec, NULL, &pkt.data, &pkt.size, pkt.data, pkt.size, 0); 
+
+	nRC = av_interleaved_write_frame(handler->oc, &pkt);
+
+ERR:
+#ifdef __Android__
+	if (NULL != jdata && NULL != data)
+		(*env)->ReleaseByteArrayElements(env, jdata, data, 0);
+#endif // __Android__
+
+#ifdef __IOS__
+	if(adts_header > 0)
+		free(data);
+#endif // __IOS__
+
+printf("Eoollo %s:Line %d handler %p pts %lld size %d nRC %d\n", __func__, __LINE__, handler, pts, size, nRC);
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return nRC;
+}
+
+#ifdef __IOS__
+int FileMuxerInputVideoSample(long long nHandler, uint8_t *data, int size, long long pts, long long dts, bool keyframe)
+#elif defined __Android__
+jint PackageName(FileMuxerInputVideoSample)(JNIEnv *env, jobject thiz,
+		jlong nHandler, uint8_t *jdata, jint size, jlong pts, jlong dts, jboolean keyframe)
+#endif // __IOS__
+{
+	HANDLER_CHECK_AND_CAST;
+
+	pthread_mutex_lock(&handler->interface_lock);
+
+	int nRC = ERROR_NONE;
+	int metadataLen = 0;
+	uint8_t *allocData = NULL;
+
+	if(true == keyframe)
+		handler->videoKeyframeArrived = true;
+	if(false == handler->videoKeyframeArrived)
+	{
+		printf("Eoollo Drop video sample, wait for I frame!\n");
+		goto ERR;
+	}
+
+	if(RECORD_INIT_PTS == handler->videoStartPTS)
+		handler->videoStartPTS = pts;
+	if(RECORD_INIT_PTS == handler->videoStartDTS)
+		handler->videoStartDTS = dts;
+
+	pts -= handler->videoStartPTS;
+	dts -= handler->videoStartDTS;
+	pts /= 1000;
+	dts /= 1000;
+
+#ifdef __USER_BLOCK__
+	int random = rand() % 10;
+	if(true == needBlocked && 0 == random)
+	{
+		printf("Eoollo muxer drop Video !!!\n");
+		goto ERR;
+	}
+#endif // __USER_BLOCK__
+
+	if(NULL == handler->video_st)
+	{
+		nRC = ERROR_POINTER;
+		goto ERR;
+	}
+
+#ifdef __Android__
+	jbyte* data = 0;      
+	if(NULL != jdata)           
+	{
+		data = (jbyte*)(*env)->GetByteArrayElements(env, jdata, 0);
+		if (NULL == data)
+		{
+			nRC = ERROR_JAVA_ENV;
+			goto ERR;
+		}
+	}
+#endif // __Android__
+
+	uint8_t nal_start[] = {0, 0, 0, 1};
+	AVPacket pkt = { 0 };
+	av_init_packet(&pkt);
+
+	if (true == keyframe && NULL != handler->spsppsInfo.sps && NULL != handler->spsppsInfo.pps)
+			metadataLen = handler->spsppsInfo.spsLen + handler->spsppsInfo.ppsLen;
+	pkt.size = size + metadataLen + sizeof(nal_start);
+
+	allocData = malloc(pkt.size);
+	if(NULL == allocData)
+	{
+		nRC = ERROR_MEMORY;
+		goto ERR;
+	}
+	memset(allocData, 0, pkt.size);
+
+	if(0 < metadataLen) // Add SPS/PPS infront of each key frames
+	{	
+		memcpy(allocData, handler->spsppsInfo.sps, handler->spsppsInfo.spsLen);
+		memcpy(allocData + handler->spsppsInfo.spsLen, handler->spsppsInfo.pps, handler->spsppsInfo.ppsLen);
+	}
+	/*
+	//memcpy(allocData + metadataLen, nal_start, sizeof(nal_start));
+	allocData[metadataLen] = 0x01;
+	allocData[metadataLen + 1] = 0x00;
+	allocData[metadataLen + 2] = 0x00;
+	allocData[metadataLen + 3] = 0x00;
+	memcpy(allocData + metadataLen + sizeof(uint8_t) * 4, data, size);
+	*/
+	memcpy(allocData + metadataLen, data, size);
+
+	if(true == keyframe)
+		pkt.flags |= AV_PKT_FLAG_KEY;
+
+	pkt.data = allocData;
+	pkt.pts = pts;
+	pkt.dts = dts;
+	pkt.stream_index = handler->video_st->index;
+
+printf("Eoollo %s:Line %d handler %p pts %lld size %d keyframe %d nRC %d\n", __func__, __LINE__, handler, pts, size, keyframe, nRC);
+	if(NULL != handler->h264bsfc && NULL != handler->video_st->codec)
+		av_bitstream_filter_filter(handler->h264bsfc, handler->video_st->codec, NULL, &pkt.data, &pkt.size, pkt.data, pkt.size, 0);  
+
+	nRC = av_interleaved_write_frame(handler->oc, &pkt);
+
+printf("Eoollo %s:Line %d handler %p pts %lld size %d keyframe %d nRC %d\n", __func__, __LINE__, handler, pts, size, keyframe, nRC);
+
+ERR:
+	if(NULL != allocData)
+		free(allocData);
+
+#ifdef __Android__
+	if (NULL != jdata && NULL != data)
+		(*env)->ReleaseByteArrayElements(env, jdata, data, 0);
+#endif // __Android__
+
+	pthread_mutex_unlock(&handler->interface_lock);
+
+	return nRC;
+}
+
+
+///// **** private **** ///////
+
+static AVStream *CreateOutputStream(MuxerHandler *handler, int streamType)
+{
+
+	if(NULL == handler)
+		return NULL;
+
+	AVStream *st = NULL;
+
+#if 0
+	AVStream* in_stream = AVMEDIA_TYPE_AUDIO == streamType ? handler->input_audio_st : handler->input_video_st;
+	st = avformat_new_stream(handler->oc, in_stream->codec->codec);
+	st->id = handler->oc->nb_streams - 1;
+	avcodec_copy_context(st->codec, in_stream->codec);
+	st->codec->codec_tag = 0;
+#else
+	int codec_id = AVMEDIA_TYPE_AUDIO == streamType ? handler->audioInfo.codecID : handler->videoInfo.codecID;
+
+	AVCodec *codec = avcodec_find_encoder(codec_id);
+	if (NULL == codec)
+	{
+		fprintf(stderr, "Eoollo Could not find encoder for '%s'\n", avcodec_get_name(codec_id));
+		return NULL;
+	}
+	
+	st = avformat_new_stream(handler->oc, codec);
+	if (NULL == st)
+	{
+		fprintf(stderr, "Eoollo Could not allocate stream\n");
+		return NULL;
+	}
+
+	st->id = handler->oc->nb_streams - 1;
+
+	 st->codec = avcodec_alloc_context3(codec);
+	 if (NULL == st->codec)
+	 {
+		 fprintf(stderr, "Eoollo Could not alloc an encoding context\n");
+		 return NULL;
+	 }
+	 st->codec->codec = codec;
+
+	switch (streamType)
+	{
+		case AVMEDIA_TYPE_AUDIO:
+			st->codec->codec_type  = AVMEDIA_TYPE_AUDIO;
+			st->codec->profile = FF_PROFILE_AAC_MAIN;
+
+			st->codec->sample_fmt  = AV_SAMPLE_FMT_S16;
+			st->codec->bit_rate    = handler->audioInfo.bitrate;
+			st->codec->sample_rate = handler->audioInfo.samplerate;
+			st->codec->channels    = handler->audioInfo.channels;
+			st->codec->channel_layout = AV_CH_LAYOUT_MONO;
+			st->time_base = (AVRational){ 1, handler->audioInfo.samplerate };
+//			st->codec->frame_size = 1024; // Accroding encoder setting
+			break;
+
+	case AVMEDIA_TYPE_VIDEO:
+			st->codec->codec_id = handler->videoInfo.codecID;
+			st->codec->bit_rate = handler->videoInfo.bitrate;
+			st->codec->width    = handler->videoInfo.width;
+			st->codec->height   = handler->videoInfo.height;
+			st->time_base.den	= (int)handler->videoInfo.fps;
+			st->time_base.num	= 1;
+			st->codec->time_base = st->time_base;
+			st->codec->gop_size = handler->videoInfo.gopsize; /* emit one intra frame every twelve frames at most */
+
+#ifdef __IOS__
+			st->codec->pix_fmt  = AV_PIX_FMT_NV12;
+#else
+			st->codec->pix_fmt  = STREAM_PIX_FMT;
+#endif // __IOS__
+			break;
+
+	default:
+			break;
+	}
+#endif
+
+	if (handler->oc->oformat->flags & AVFMT_GLOBALHEADER)
+		st->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+
+	return st;
+}
