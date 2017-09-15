@@ -21,7 +21,7 @@
         android:id="@+id/gl_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="rtmp://livepush.test.pajk.cn/live/eoollo"
+        android:text="rtmp://livepush.test.pajk.cn/live/eoollo1"
         android:textColor="@color/colorAccent"/>
 
     <LinearLayout

@@ -338,16 +338,19 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
                 pcmDataQueue.cleanQueue();
             if (null != yuvDataQueue)
                 yuvDataQueue.cleanQueue();
-        } else if (Constant.YUV == type) { // Video Camera captured yuv data callback.
-            if (null == yuvDataQueue)
-                yuvDataQueue = new DataQueue("YUVDataQueue");
-
-            inputData = new DataStructure.Data(Constant.YUV, index, data, timestamp, info.flags);
-            yuvDataQueue.addTailer(inputData);
-
-            while (yuvDataQueue.len() > 3) {// We do NOT keep too many yuv data.
-                yuvDataQueue.removeHeader();
-            }
+//
+//            TODO: ABANDONED below
+//
+//        } else if (Constant.YUV == type) { // Video Camera captured yuv data callback.
+//            if (null == yuvDataQueue)
+//                yuvDataQueue = new DataQueue("YUVDataQueue");
+//
+//            inputData = new DataStructure.Data(Constant.YUV, index, data, timestamp, info.flags);
+//            yuvDataQueue.addTailer(inputData);
+//
+//            while (yuvDataQueue.len() > 3) {// We do NOT keep too many yuv data.
+//                yuvDataQueue.removeHeader();
+//            }
 
         } else if (Constant.PCM == type) { // Microphone captured pcm data callback.
 
@@ -378,13 +381,16 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
                 if (null != pushSDKCallback)
                     infoVideoEncodedFrames++;
             }
-        } else if (Constant.AAC == type) {
-
-            if (null == aacDataQueue)
-                aacDataQueue = new DataQueue("AACDataQueue");
-
-            inputData = new DataStructure.Data(Constant.AAC, index, data, timestamp, info.flags);
-            aacDataQueue.addTailer(inputData);
+//
+//            TODO: ABANDONED below
+//
+//        } else if (Constant.AAC == type) {
+//
+//            if (null == aacDataQueue)
+//                aacDataQueue = new DataQueue("AACDataQueue");
+//
+//            inputData = new DataStructure.Data(Constant.AAC, index, data, timestamp, info.flags);
+//            aacDataQueue.addTailer(inputData);
 
         } else if (Constant.AVC_FORMAT  == type) {
             if (null != format && null == videoMeidaFormat) {
@@ -506,20 +512,20 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         if (null == aacDataQueue || null == avcDataQueue)
             return -1;
 
+//            TODO: Drop data below
+//
 //        if (avcDataQueue.queueDuration() > 5000000 || aacDataQueue.queueDuration() > 5000000) { // AV queue contain too many data, clean them all.
 //          cleanEncodedDataQueue();
 //          nRC = Constant.THREAD_RUN_STATUS_IDLE;
 //        } else if (abs(lastAudioSendTime - lastVideoSendTime) >= 5000000) { // AV async more then 5s, clean them all.
 //          cleanEncodedDataQueue();
 //          nRC = Constant.THREAD_RUN_STATUS_IDLE;
-//        }else if (false == needSendAudio) { // Audio delayed
+//        }
+
         if (true == needSendAudio) { // Audio delayed
             sendData = aacDataQueue.removeHeader();
-//            Loging.Log(Loging.LOG_ERROR, TAG, "Send AAC Audio queue len " + aacDataQueue.len());
-
         } else if (false == needSendAudio){ // Video delayed.
             sendData = avcDataQueue.removeHeader();
-//            Loging.Log(Loging.LOG_ERROR, TAG, "Send AVC Video queue len " + avcDataQueue.len());
         }
 
         String stringType = true == needSendAudio ? "audio" : "video";
