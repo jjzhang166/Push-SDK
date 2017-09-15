@@ -389,6 +389,12 @@ public class RESVideoClient {
         }
     }
 
+    public void updateIcon(Bitmap bitmap, Rect rect) {
+        if (resCoreParameters.filterMode == RESCoreParameters.FILTER_MODE_HARD) {
+            videoCore.updateIcon(bitmap, rect);
+        }
+    }
+
     public void removeIcon(int index) {
         if (resCoreParameters.filterMode == RESCoreParameters.FILTER_MODE_HARD) {
             videoCore.removeFilter(index);

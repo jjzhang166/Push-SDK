@@ -46,7 +46,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
     private boolean started = false;
 
     private Context mContext = null;
-    private Button gl_start_push_btn, gl_stop_push_btn, gl_restart_push_btn, enable_beauty_btn, denoise_btn, enable_filter_btn, start_mux_btn, stop_mux_btn, add_logo_btn, remove_logo_btn;
+    private Button gl_start_push_btn, gl_stop_push_btn, gl_restart_push_btn, enable_beauty_btn, denoise_btn, enable_filter_btn, start_mux_btn, stop_mux_btn, add_logo_btn, update_logo_btn, remove_logo_btn;
     private EditText gl_editText = null, beauty_level_input = null, filter_type_input = null, file_mux_input = null;
     private FrameLayout frameLayout;
 
@@ -89,6 +89,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         stop_mux_btn = (Button) findViewById(R.id.stop_mux);
 
         add_logo_btn = (Button) findViewById(R.id.add_logo);
+        update_logo_btn = (Button) findViewById(R.id.update_logo);
         remove_logo_btn = (Button) findViewById(R.id.remove_logo);
 
         gl_start_push_btn.setOnClickListener(this);
@@ -100,6 +101,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         start_mux_btn.setOnClickListener(this);
         stop_mux_btn.setOnClickListener(this);
         add_logo_btn.setOnClickListener(this);
+        update_logo_btn.setOnClickListener(this);
         remove_logo_btn.setOnClickListener(this);
 
         init();
@@ -146,6 +148,9 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             case R.id.add_logo:
                 addLogo();
                 break;
+            case R.id.update_logo:
+                updateIcon();
+                break;
             case R.id.remove_logo:
                 removeLogo();
                 break;
@@ -163,6 +168,22 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             rect.right = rect.bottom = rect.top + 60;
             iconPosition += 1;
             openGLESPushStreamInterfaces.addVideoIcon(bitmap, rect);
+        }
+    }
+
+    private void updateIcon() {
+        if (null != openGLESPushStreamInterfaces) {
+            Bitmap bitmap = null;
+            if (0 == iconPosition % 2)
+                bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.animationd);
+            else
+                bitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
+
+            Rect rect = new Rect();
+            rect.left = rect.top = 50 * iconPosition;
+            rect.right = rect.bottom = rect.top + 60;
+            iconPosition += 1;
+            openGLESPushStreamInterfaces.updateIcon(bitmap, rect);
         }
     }
 

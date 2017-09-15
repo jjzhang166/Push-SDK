@@ -275,6 +275,11 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
             videoClient.addVideoIcon(bitmap, rect);
     }
 
+    public void updateIcon(Bitmap bitmap, Rect rect) {
+        if (null != videoClient)
+            videoClient.updateIcon(bitmap, rect);
+    }
+
     public void removeIcon(int index) {
         if (null != videoClient)
             videoClient.removeIcon(index);

@@ -79,6 +79,11 @@ public class OpenGLESPushStreamInterfaces {
             pushStreamManager.addVideoIcon(bitmap, rect);
     }
 
+    public void updateIcon(Bitmap bitmap, Rect rect) {
+        if (null != pushStreamManager)
+            pushStreamManager.updateIcon(bitmap, rect);
+    }
+
     public void removeIcon(int index) {
         if (null != pushStreamManager)
             pushStreamManager.removeIcon(index);

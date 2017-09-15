@@ -65,6 +65,7 @@ public class RESVideoCore {
     private BaseHardVideoFilter videoFilter;
 
     private LinkedList<BaseHardVideoFilter> filterList = null;
+    private IconHardFilter iconHardFilter = null;
     private TimeStampHardFilter timeStampHardFilter = null;
 
     private MediaCodec dstVideoEncoder;
@@ -125,7 +126,8 @@ public class RESVideoCore {
             filterList.add(timeStampHardFilter);
         }
 
-        filterList.add(new IconHardFilter(bitmap, rect));
+        iconHardFilter = new IconHardFilter(bitmap, rect);
+        filterList.add(iconHardFilter);
 //        filterList.add(new GPUImageCompatibleFilter<>(new MagicFairytaleFilter()));
         faceBeautyFilter = new MagicBeautyFilter();
         faceBeautyFilter.setBeautyLevel(0);
@@ -134,6 +136,12 @@ public class RESVideoCore {
         videoFilter = new HardVideoGroupFilter(filterList);
 
         lockVideoFilter.unlock();
+    }
+
+    public void updateIcon(Bitmap bitmap, Rect rect) {
+        if (null != iconHardFilter) {
+            iconHardFilter.updateIcon(bitmap, rect);
+        }
     }
 
     public void removeFilter(int index) {

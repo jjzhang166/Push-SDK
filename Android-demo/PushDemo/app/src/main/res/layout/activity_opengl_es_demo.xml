@@ -49,14 +49,14 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/gl_start_push"
-            android:text="StartPush"
+            android:text="Start"
             android:textColor="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <Button
             android:id="@+id/gl_stop_push"
-            android:text="StopPush"
+            android:text="Stop"
             android:textColor="@color/colorAccent"
             android:paddingLeft="10dp"
             android:layout_width="wrap_content"
@@ -64,7 +64,7 @@
 
         <Button
             android:id="@+id/gl_restart_push"
-            android:text="RestartPush"
+            android:text="Restart"
             android:textColor="@color/colorAccent"
             android:paddingLeft="10dp"
             android:layout_width="wrap_content"
@@ -148,6 +148,11 @@
         <Button
             android:id="@+id/add_logo"
             android:text="AddLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/update_logo"
+            android:text="update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <Button
