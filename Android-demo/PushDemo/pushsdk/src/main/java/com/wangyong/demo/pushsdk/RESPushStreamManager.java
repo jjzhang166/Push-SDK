@@ -271,8 +271,10 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
     }
 
     public void addVideoIcon(Bitmap bitmap, Rect rect) {
-        if (null != videoClient)
+        if (null != videoClient) {
+            videoClient.setHardVideoFilter(null);
             videoClient.addVideoIcon(bitmap, rect);
+        }
     }
 
     public void updateIcon(Bitmap bitmap, Rect rect) {
@@ -282,7 +284,7 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
 
     public void removeIcon(int index) {
         if (null != videoClient)
-            videoClient.removeIcon(index);
+            videoClient.setHardVideoFilter(null);
     }
 
     public void denoise(boolean denoise) {

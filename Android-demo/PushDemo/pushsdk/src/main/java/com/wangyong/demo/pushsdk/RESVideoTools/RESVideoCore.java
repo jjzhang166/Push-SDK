@@ -117,7 +117,7 @@ public class RESVideoCore {
     public void addVideoIcon(Bitmap bitmap, Rect rect) {
         lockVideoFilter.lock();
 
-        if (null == filterList)
+//        if (null == filterList)
             filterList = new LinkedList<BaseHardVideoFilter>();
 
         if (null == timeStampHardFilter) {
