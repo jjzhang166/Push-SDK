@@ -112,10 +112,10 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.gl_start_push:
-                start();
+                startStreaming();
                 break;
             case R.id.gl_stop_push:
-                stop();
+                stopStreaming();
                 break;
             case R.id.enable_beauty_level:
                 setBeautyLevel();
@@ -204,7 +204,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         inited = true;
     }
 
-    private void start() {
+    private void startStreaming() {
 
         if (true == started)
             return;
@@ -218,11 +218,19 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         started = true;
     }
 
-    private void stop() {
+    private void stopStreaming() {
 
         if (null != openGLESPushStreamInterfaces) {
             openGLESPushStreamInterfaces.stopPushStream();
-            openGLESPushStreamInterfaces.destory();
+        }
+        started = false;
+    }
+
+    private void onDestory() {
+
+        if (null != openGLESPushStreamInterfaces) {
+            openGLESPushStreamInterfaces.stopPushStream();
+            openGLESPushStreamInterfaces.destroy();
         }
 
         openGLESPushStreamInterfaces = null;
@@ -238,8 +246,8 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
     }
 
     private void restart() {
-        stop();
-        start();
+        stopStreaming();
+        startStreaming();
     }
 
     private void startMux() {
@@ -323,7 +331,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
-                        stop();
+                        onDestory();
                         finish(); //操作结束
                     }
                 }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -415,7 +423,8 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             init();
 
         if (openGLESPushStreamInterfaces != null) {
-            openGLESPushStreamInterfaces.init(surface, pushUrl, width, height);
+            openGLESPushStreamInterfaces.init(pushUrl);
+            openGLESPushStreamInterfaces.startPreview(surface, width, height);
         }
     }
 
@@ -429,6 +438,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         if (openGLESPushStreamInterfaces != null) {
+            openGLESPushStreamInterfaces.stopPreview(true);
             openGLESPushStreamInterfaces.stopPushStream();
         }
         return false;

@@ -34,7 +34,7 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
     private CallbackInterfaces.CapturedDataCallback capturedDataCallback = null;
     private ThreadBase audioRecordReadThread = null;
 
-    private boolean audioRecorderStopped = false;
+    private boolean running = false;
     private boolean enableDenoise = false;
 
     /********************* Public interfaces **********************/
@@ -43,10 +43,6 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
 
         speexProcessor = new SpeexProcessor();
 //        webRTCAudioProcessing = new WebRTCAudioProcessing();
-
-        audioRecordReadThread = new ThreadBase("AudioRecordReadThread");
-        audioRecordReadThread.setInvocationInterval(10);
-        audioRecordReadThread.setRunnable(this, Constant.AUDIO_RECORDER_THREAD_ID);
 
 //        int[] sampleRates = {44100, 22050, 11025, 16000};
         int[] sampleRates = {32000, 16000, 44100, 8000, 48000, 22050, 11025};
@@ -110,6 +106,10 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
     public boolean start() {
         if(audioRecord == null) return false;
 
+        audioRecordReadThread = new ThreadBase("AudioRecordReadThread");
+        audioRecordReadThread.setInvocationInterval(10);
+        audioRecordReadThread.setRunnable(this, Constant.AUDIO_RECORDER_THREAD_ID);
+
         this.preRecordedTimestamp = 0;
         this.startRecordedTimestamp = System.currentTimeMillis();
 
@@ -124,27 +124,37 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
         if (null != audioRecordReadThread)
             audioRecordReadThread.start();
 
+        running = true;
+
         return true;
     }
 
     public void stop() {
 
+        if (false == running)
+            return;
+
+        if (null != audioRecordReadThread && true == running) {
+            audioRecordReadThread.stopThread();
+        }
+
+        if (null != audioRecord && true == running) {
+            audioRecord.stop();
+        }
+
+        running = false;
+    }
+
+    public void destroy() {
         if (null != capturedDataCallback) {
             capturedDataCallback = null;
         }
 
-        if (null != audioRecordReadThread) {
-//            audioRecordReadThread.stop();
-            audioRecorderStopped = true;
-            audioRecordReadThread.stopThread();
-        }
+        stop();
 
         if (null != audioRecord) {
             audioRecord.setRecordPositionUpdateListener(null);
-            audioRecord.stop();
             audioRecord.release();
-
-            setDefaultParameters();
         }
 
         if (null != speexProcessor)
@@ -153,10 +163,7 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
         if (null != webRTCAudioProcessing)
             webRTCAudioProcessing.close();
 
-        audioRecord = null;
-        audioBuffer = null;
-        speexProcessor = null;
-        webRTCAudioProcessing = null;
+        setDefaultParameters();
     }
 
     public void denoise(boolean denoise) {
@@ -178,7 +185,7 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
 
         int index = 0;
         do {
-            if (true == audioRecorderStopped)
+            if (false == running)
                 break;
 
             int size = audioRecord.read(audioBuffer, index, audioBuffer.length - index);
@@ -241,7 +248,7 @@ public class AudioRecorder implements CallbackInterfaces.ThreadBaseInterface{
         audioRecordReadThread = null;
         startRecordedTimestamp = preRecordedTimestamp = 0;
 
-        audioRecorderStopped = false;
+        running = false;
 
         speexAudioBuffer = null;
         speexProcessor = null;

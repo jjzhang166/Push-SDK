@@ -23,7 +23,11 @@ public class RTMPSender {
     public static final int ERROR_HEADER = -4;		// RTMP包头错误
     public static final int ERROR_METADATA = -5;	// Medadata 没有发送
 
+    private boolean connected = false;
+
     public int RTMPConnect(String svrUrl, int absoluteTimeMs){
+        if (true == connected)
+            return -1;
 
         int ret = nativeConnect(svrUrl);
 
@@ -38,11 +42,15 @@ public class RTMPSender {
             return ret;
         }
 
+        connected = true;
+
         return ret;
     }
     public void RTMPDisconnect(){
 
-        nativeDisconnect();
+        if (true == connected)
+            nativeDisconnect();
+        connected = false;
     }
 
 

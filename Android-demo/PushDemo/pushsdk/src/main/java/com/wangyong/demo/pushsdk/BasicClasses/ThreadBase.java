@@ -6,22 +6,27 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by wangyong on 2017/7/3.
  */
 
-public class ThreadBase extends Thread {
+public class ThreadBase implements Runnable{
 
     private String TAG = "ThreadBase";
 
-    private boolean stopped = false;
+    private boolean running = false;
     private CallbackInterfaces.ThreadBaseInterface threadBaseInterface = null;
     private int threadID = -1;
     private int invocationInterval = 30; //Default 30ms
 
     private ReentrantLock reentrantLock = null;
 
+    private Thread thread = null;
 
     public ThreadBase(String name) {
-        super(name);
         TAG = name;
         reentrantLock = new ReentrantLock();
+    }
+
+    public void start() {
+        thread = new Thread(this);
+        thread.start();
     }
 
     public void setRunnable(CallbackInterfaces.ThreadBaseInterface threadBaseInterface, int id) {
@@ -29,21 +34,35 @@ public class ThreadBase extends Thread {
         this.threadID = id;
     }
 
+    public long getId() {
+        if (null == thread)return -1;
+        return thread.getId();
+    }
+
     public void setInvocationInterval(int interval) {
         this.invocationInterval = interval;
     }
 
     public void stopThread() {
-        reentrantLock.lock();
-        this.stopped = true;
-        reentrantLock.unlock();
+        if (true == running) {
+            reentrantLock.lock();
+            running = false;
+            reentrantLock.unlock();
+        }
+        thread = null;
     }
 
-    @Override
+    private boolean isInterrupted(){
+        if(thread == null) return true;
+        return thread.isInterrupted();
+    }
+
     public void run() {
+        this.running = true;
+
         long before = 0, needWaitDuration = 0, timeElapsed = 0, sleepTimes = 0;
 
-        while (true != stopped && null != threadBaseInterface) {
+        while (true == running && null != threadBaseInterface && true != isInterrupted()) {
 
             before = System.currentTimeMillis();
 
@@ -55,7 +74,7 @@ public class ThreadBase extends Thread {
 
             if (0 > nRC) {
                 if (Constant.RTMP_SENDER_THREAD_ID == threadID)
-                    Loging.Log(Loging.LOG_ERROR, getName(), "Thread ID : " + Loging.threadID2String(threadID) + " RunLoop return :" + Loging.RTMPError2String(nRC));
+                    Loging.Log(Loging.LOG_ERROR, TAG, "Thread ID : " + Loging.threadID2String(threadID) + " RunLoop return :" + Loging.RTMPError2String(nRC));
             }
 
             timeElapsed = System.currentTimeMillis() - before;
@@ -81,7 +100,7 @@ public class ThreadBase extends Thread {
 
             try {
                 if (0 < needWaitDuration) {
-                    while (true != stopped && null != threadBaseInterface && 2 > sleepTimes ++) {
+                    while (true == running && null != threadBaseInterface && 2 > sleepTimes ++) {
                         Thread.sleep(needWaitDuration / 2);
                     }
                     sleepTimes = 0;
@@ -90,6 +109,7 @@ public class ThreadBase extends Thread {
                 e.printStackTrace();
             }
         }
+        this.running = false;
         this.threadBaseInterface = null;
     }
 }

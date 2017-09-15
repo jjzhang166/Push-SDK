@@ -114,11 +114,11 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         videoClient = new RESVideoClient(parameters);
         videoClient.prepare();
 
-        String filePath = Environment.getExternalStorageDirectory().getPath() + "/androidMux.mp4";
-        androidMediaMuxer = new AndroidMediaMuxer(filePath);
+//        String filePath = Environment.getExternalStorageDirectory().getPath() + "/androidMux.mp4";
+//        androidMediaMuxer = new AndroidMediaMuxer(filePath);
     }
 
-    public int init(SurfaceTexture surfaceTexture, String uri, int screenWidth, int screenHeight) {
+    public int init(String uri) {
 
         if (null == audioRecorder || null == audioMCEncoder || null == audioEncoderThread
                 || null == rtmpSenderThread
@@ -127,7 +127,6 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
             return -1;
         }
 
-        this.previewSurfaceTexture = surfaceTexture;
         this.pushUrl = uri;
 
         audioRecorder.setCapturedDataCallback(this);
@@ -138,15 +137,38 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
             return -1;
         }
 
-        audioEncoderThread.setRunnable(this, Constant.AUDIO_ENCODER_THREAD_ID);
-        audioEncoderThread.setInvocationInterval(15);
-
-        rtmpSenderThread.setRunnable(this, Constant.RTMP_SENDER_THREAD_ID);
-        rtmpSenderThread.setInvocationInterval(10);
-
-        videoClient.startPreview(previewSurfaceTexture, screenWidth, screenHeight);
-
         return 0;
+    }
+
+    public void destroy() {
+        if (null != videoClient) {
+            videoClient.destroy();
+        }
+
+        if (null != androidMediaMuxer)
+            androidMediaMuxer.destroy();
+
+        if (null != audioRecorder)
+            audioRecorder.destroy();
+
+        if (null != audioMCEncoder)
+            audioMCEncoder.destroy();
+
+        if (null != rtmpSender)
+            rtmpSender.RTMPDisconnect();
+
+        setDefaultParameters();
+    }
+
+    public void startPreview(SurfaceTexture surfaceTexture, int screenWidth, int screenHeight) {
+        this.previewSurfaceTexture = surfaceTexture;
+        if (null != videoClient)
+            videoClient.startPreview(surfaceTexture, screenWidth, screenHeight);
+    }
+
+    public void stopPreview(boolean destorySurfaceView) {
+        if (null != videoClient)
+            videoClient.stopPreview(destorySurfaceView);
     }
 
     public void updatePreview(int width, int height) {
@@ -162,6 +184,13 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
             return -1;
 
         /***** The start sequence below is NOT random, They have dependencies with each other, Please keep in mind *****/
+
+
+        audioEncoderThread.setRunnable(this, Constant.AUDIO_ENCODER_THREAD_ID);
+        audioEncoderThread.setInvocationInterval(15);
+
+        rtmpSenderThread.setRunnable(this, Constant.RTMP_SENDER_THREAD_ID);
+        rtmpSenderThread.setInvocationInterval(10);
 
         if (0 != rtmpSender.RTMPConnect(pushUrl, 0)) {
             Loging.Log(Loging.LOG_ERROR, TAG, "RTMP connect FAILED !");
@@ -226,7 +255,7 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         if (null != infoCollectThread)
             infoCollectThread.stopThread();
 
-        setDefaultParameters();
+        lastAudioSendTime = lastVideoSendTime = 0;
     }
 
     /**************** End Public interfaces *******************/
@@ -353,12 +382,14 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         } else if (Constant.AVC_FORMAT  == type) {
             if (null != format && null == videoMeidaFormat) {
                 videoMeidaFormat = format;
-                if (null != androidMediaMuxer && null != videoMeidaFormat)
-                    androidMediaMuxer.addTrack(false, videoMeidaFormat);
+                if (null != androidMediaMuxer) {
+                    if (null != videoMeidaFormat)
+                        androidMediaMuxer.addTrack(false, videoMeidaFormat);
 
-                if (false == androidMediaMuxerStarted && null != audioMediaFormat && null != videoMeidaFormat) {
-                    androidMediaMuxerStarted = true;
-                    androidMediaMuxer.start();
+                    if (false == androidMediaMuxerStarted && null != audioMediaFormat && null != videoMeidaFormat) {
+                        androidMediaMuxerStarted = true;
+                        androidMediaMuxer.start();
+                    }
                 }
             }
         } else {
@@ -393,12 +424,6 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
 
     private int audioEncoderLoop() {
 
-        if (audioEncoderThread.getId() != Thread.currentThread().getId()) {
-            throw new RuntimeException(
-                    "MediaCodecAudioEncoder previously operated on " + audioEncoderThread +
-                            " but is now called on " + Thread.currentThread());
-        }
-
         int nRC = Constant.THREAD_RUN_STATUS_NORMAL;
         DataStructure.Data pcmData = null;
 
@@ -428,12 +453,14 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
             } else if (outputBuffer instanceof MediaFormat) {
                 if (null == audioMediaFormat) {
                     audioMediaFormat = (MediaFormat) outputBuffer;
-                    if (null != androidMediaMuxer && null != audioMediaFormat)
-                        androidMediaMuxer.addTrack(true, audioMediaFormat);
+                    if (null != androidMediaMuxer) {
+                        if (null != audioMediaFormat)
+                            androidMediaMuxer.addTrack(true, audioMediaFormat);
 
-                    if (false == androidMediaMuxerStarted && null != audioMediaFormat && null != videoMeidaFormat) {
-                        androidMediaMuxerStarted = true;
-                        androidMediaMuxer.start();
+                        if (false == androidMediaMuxerStarted && null != audioMediaFormat && null != videoMeidaFormat) {
+                            androidMediaMuxerStarted = true;
+                            androidMediaMuxer.start();
+                        }
                     }
                 }
             }

@@ -24,12 +24,22 @@ public class OpenGLESPushStreamInterfaces {
         pushStreamManager = new RESPushStreamManager(context, rotation, width, height, fps, bitrate, sampleRate, sampleBit, channels, audioBitrate);
     }
 
-    public void init(SurfaceTexture surfaceTexture, String uri, int screenWidth, int screenHeight) {
+    public void init(String uri) {
         Loging.Log(TAG, "init");
 
         this.pushUrl = uri;
 
-        pushStreamManager.init(surfaceTexture, pushUrl, screenWidth, screenHeight);
+        pushStreamManager.init(pushUrl);
+    }
+
+    public void startPreview(SurfaceTexture surfaceTexture, int screenWidth, int screenHeight) {
+        if (null != pushStreamManager)
+            pushStreamManager.startPreview(surfaceTexture, screenWidth, screenHeight);
+    }
+
+    public void stopPreview(boolean destorySurfaceView) {
+        if (null != pushStreamManager)
+            pushStreamManager.stopPreview(destorySurfaceView);
     }
 
     public void updatePreview(int w, int h) {
@@ -104,7 +114,10 @@ public class OpenGLESPushStreamInterfaces {
             pushStreamManager.setPushSDKCallback(callback, interval);
     }
 
-    public void destory() {
+    public void destroy() {
+
+        if (null != pushStreamManager)
+            pushStreamManager.destroy();
         setDefaultParameters();
     }
 

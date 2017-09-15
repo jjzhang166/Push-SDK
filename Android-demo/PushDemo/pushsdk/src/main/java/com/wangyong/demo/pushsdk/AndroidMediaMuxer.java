@@ -41,6 +41,14 @@ public class AndroidMediaMuxer {
 
             if (true == dataWrote)
                 mediaMuxer.stop();
+            dataWrote = false;
+        }
+    }
+
+    public void destroy() {
+        if (null != mediaMuxer) {
+            if (true == dataWrote)
+                mediaMuxer.stop();
 
             mediaMuxer.release();
             mediaMuxer = null;

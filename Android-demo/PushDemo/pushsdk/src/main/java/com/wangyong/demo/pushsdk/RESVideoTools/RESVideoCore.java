@@ -19,6 +19,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 
 import java.nio.FloatBuffer;
@@ -50,7 +51,7 @@ import com.wangyong.demo.pushsdk.RESVideoTools.Tools.Size;
 import com.wangyong.demo.pushsdk.RESVideoTools.Filters.BaseHardVideoFilter;
 
 /**
- * Created by wangyong on 16-5-24.
+ * Created by wangyong on 17-9-1.
  */
 
 public class RESVideoCore {

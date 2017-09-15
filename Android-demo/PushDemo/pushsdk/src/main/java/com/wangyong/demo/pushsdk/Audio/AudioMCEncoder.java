@@ -24,6 +24,7 @@ public class AudioMCEncoder {
 
     private int sampleRate = 0, sampleBit = 0, channels = 0, bitRate = 0;
     private MediaCodec encoder = null;
+    private boolean started = false;
     private MediaCodec.BufferInfo bufferInfo = null;
 
     public int init(int sampleRate, int sampleBit, int channels, int bitRate) {
@@ -42,19 +43,22 @@ public class AudioMCEncoder {
         }
         bufferInfo = new MediaCodec.BufferInfo();
 
-        MediaFormat audioFormat = MediaFormat.createAudioFormat(ACODEC, sampleRate, channels);
-        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 1000 * ABITRATE_KBPS);
-        audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0);
-        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
-
-        encoder.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-
         return 0;
     }
 
     public void start() {
-        Loging.Log(Loging.LOG_INFO, TAG, "node start aac encoder");
-        encoder.start();
+        if (false == started) {
+            Loging.Log(Loging.LOG_INFO, TAG, "node start aac encoder");
+
+            MediaFormat audioFormat = MediaFormat.createAudioFormat(ACODEC, sampleRate, channels);
+            audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 1000 * ABITRATE_KBPS);
+            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0);
+            audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
+
+            encoder.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+            encoder.start();
+            started = true;
+        }
     }
 
     public int queueInputBuffer(byte[] data, long pts) throws InterruptedException {
@@ -118,13 +122,19 @@ public class AudioMCEncoder {
     }
 
     public void stop() {
-        if (encoder != null) {
-            Loging.Log(TAG, "Stop AAC encoder");
+        if (encoder != null && true == started) {
             encoder.stop();
-            encoder.release();
-
-            setDefaultParameters();
+            started = false;
         }
+    }
+
+    public void destroy() {
+        if (null != encoder) {
+            if (true == started)
+                encoder.stop();
+            encoder.release();
+        }
+        setDefaultParameters();
     }
 
     /******************* Private ********************/
