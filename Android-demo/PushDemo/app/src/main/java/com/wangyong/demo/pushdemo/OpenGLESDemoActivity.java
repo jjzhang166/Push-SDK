@@ -167,6 +167,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             rect.left = rect.top = 50 * iconPosition;
             rect.right = rect.bottom = rect.top + 60;
             iconPosition += 1;
+            if (iconPosition > 8)iconPosition = 1;
             openGLESPushStreamInterfaces.addVideoIcon(bitmap, rect);
         }
     }
@@ -183,6 +184,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             rect.left = rect.top = 50 * iconPosition;
             rect.right = rect.bottom = rect.top + 60;
             iconPosition += 1;
+            if (iconPosition > 8)iconPosition = 1;
             openGLESPushStreamInterfaces.updateIcon(bitmap, rect);
         }
     }
