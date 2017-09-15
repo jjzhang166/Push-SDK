@@ -23,7 +23,7 @@ public class VideoEncoderThread extends Thread {
     private final Object syncDstVideoEncoder = new Object();
 
     private CallbackInterfaces.CapturedDataCallback capturedDataCallback;
-    private long startEncodeTimestamp = 0;
+    private long startEncodeTimestamp = -1;
 
     VideoEncoderThread(String name, MediaCodec encoder, CallbackInterfaces.CapturedDataCallback capturedDataCallback) {
         super(name);
@@ -31,6 +31,7 @@ public class VideoEncoderThread extends Thread {
         startTime = 0;
         dstVideoEncoder = encoder;
         this.capturedDataCallback = capturedDataCallback;
+        startEncodeTimestamp = -1;
     }
 
     public void updateMediaCodec(MediaCodec encoder) {
@@ -76,7 +77,7 @@ public class VideoEncoderThread extends Thread {
                         ByteBuffer encodedData = dstVideoEncoder.getOutputBuffers()[eobIndex];
 
                         if (null != capturedDataCallback && 0 < eInfo.size) {
-                            if (0 == startEncodeTimestamp)
+                            if (0 >= startEncodeTimestamp)
                                 startEncodeTimestamp = eInfo.presentationTimeUs;
 
                             byte[] data = new byte[eInfo.size];

@@ -252,6 +252,9 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         if (null != yuvDataQueue)
             yuvDataQueue.cleanQueue();
 
+        if (null != avcDataQueue)
+            avcDataQueue.cleanQueue();
+
         if (null != infoCollectThread)
             infoCollectThread.stopThread();
 
@@ -367,7 +370,6 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
 
                 inputData = new DataStructure.Data(Constant.AVC, index, data, timestamp, info.flags);
                 avcDataQueue.addTailer(inputData);
-
                 if (null != pushSDKCallback)
                     infoVideoEncodedFrames++;
             }
