@@ -89,11 +89,6 @@ public class OpenGLESPushStreamInterfaces {
             pushStreamManager.removeIcon(index);
     }
 
-    public void setFilterType(int filter) {
-        if (null != pushStreamManager)
-            pushStreamManager.setFilterType(filter);
-    }
-
     public void denoise(boolean denoise) {
         if (null != pushStreamManager)
             pushStreamManager.denoise(denoise);

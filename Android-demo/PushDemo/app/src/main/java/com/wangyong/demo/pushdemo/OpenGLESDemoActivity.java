@@ -46,8 +46,8 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
     private boolean started = false;
 
     private Context mContext = null;
-    private Button gl_start_push_btn, gl_stop_push_btn, gl_restart_push_btn, enable_beauty_btn, denoise_btn, enable_filter_btn, start_mux_btn, stop_mux_btn, add_logo_btn, update_logo_btn, remove_logo_btn;
-    private EditText gl_editText = null, beauty_level_input = null, filter_type_input = null, file_mux_input = null;
+    private Button gl_start_push_btn, gl_stop_push_btn, gl_restart_push_btn, enable_beauty_btn, denoise_btn, start_mux_btn, stop_mux_btn, add_logo_btn, update_logo_btn, remove_logo_btn;
+    private EditText gl_editText = null, beauty_level_input = null, file_mux_input = null;
     private FrameLayout frameLayout;
 
     private String pushUrl = null;
@@ -81,9 +81,6 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         enable_beauty_btn = (Button) findViewById(R.id.enable_beauty_level);
         denoise_btn = (Button) findViewById(R.id.gl_denoise);
 
-        filter_type_input = (EditText) findViewById(R.id.filter_type_input);
-        enable_filter_btn = (Button) findViewById(R.id.enable_filter);
-
         file_mux_input = (EditText) findViewById(R.id.file_muxer_input);
         start_mux_btn = (Button) findViewById(R.id.start_mux);
         stop_mux_btn = (Button) findViewById(R.id.stop_mux);
@@ -97,7 +94,6 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
         gl_restart_push_btn.setOnClickListener(this);
         enable_beauty_btn.setOnClickListener(this);
         denoise_btn.setOnClickListener(this);
-        enable_filter_btn.setOnClickListener(this);
         start_mux_btn.setOnClickListener(this);
         stop_mux_btn.setOnClickListener(this);
         add_logo_btn.setOnClickListener(this);
@@ -135,9 +131,6 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
                     denoise_btn.setText("NS-N");
 
                 denoise(enable_denoise);
-                break;
-            case R.id.enable_filter:
-                setFilterType();
                 break;
             case R.id.start_mux:
                 startMux();
@@ -194,13 +187,6 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
             openGLESPushStreamInterfaces.removeIcon(0);
     }
 
-    private void setFilterType() {
-        int filter = Integer.valueOf(filter_type_input.getText().toString());
-
-        if (null != openGLESPushStreamInterfaces)
-            openGLESPushStreamInterfaces.setFilterType(filter);
-    }
-
     private void denoise(boolean denoise) {
         if (null != openGLESPushStreamInterfaces)
             openGLESPushStreamInterfaces.denoise(denoise);
@@ -222,7 +208,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
 
 //        frameLayout.addView(view, lp);
 
-//        openGLESPushStreamInterfaces.setPushSDKCallback(this, 2);
+        openGLESPushStreamInterfaces.setPushSDKCallback(this, 2);
 
         inited = true;
     }

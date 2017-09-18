@@ -36,7 +36,7 @@
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/enable_beauty_level"
-            android:text="EnableBeauty"
+            android:text="Beauty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -79,27 +79,9 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-
-    <LinearLayout
-        android:id="@+id/filter_type"
-        android:layout_below="@+id/gl_buttonPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/filter_type_input"
-            android:text="3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Button
-            android:id="@+id/enable_filter"
-            android:text="EnableBeauty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
     <LinearLayout
         android:id="@+id/file_muxer"
-        android:layout_below="@+id/filter_type"
+        android:layout_below="@+id/gl_buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <EditText

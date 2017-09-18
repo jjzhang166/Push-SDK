@@ -100,7 +100,7 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
         parameters.mediacdoecAVCBitRate = videoBitRate;
         parameters.videoWidth = width;
         parameters.videoHeight = height;
-        parameters.videoFPS = fps;
+        parameters.videoFPS = fps * 1000;
         parameters.videoGOP = 2;
         parameters.mediacodecAACBitRate = audioBitrate;
         parameters.audioRecoderSampleRate = sampleRate;
@@ -265,10 +265,6 @@ public class RESPushStreamManager implements CallbackInterfaces.CapturedDataCall
 
 
     /**************** Surface Callbacks *******************/
-
-    public void setFilterType(int filter) {
-
-    }
 
     public void addVideoIcon(Bitmap bitmap, Rect rect) {
         if (null != videoClient) {

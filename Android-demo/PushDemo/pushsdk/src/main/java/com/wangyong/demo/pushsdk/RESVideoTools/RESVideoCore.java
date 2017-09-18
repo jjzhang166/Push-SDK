@@ -117,14 +117,11 @@ public class RESVideoCore {
     public void addVideoIcon(Bitmap bitmap, Rect rect) {
         lockVideoFilter.lock();
 
-//        if (null == filterList)
-            filterList = new LinkedList<BaseHardVideoFilter>();
+        filterList = new LinkedList<BaseHardVideoFilter>();
 
-        if (null == timeStampHardFilter) {
-            timeStampHardFilter = new TimeStampHardFilter(null, Color.TRANSPARENT, 30);
-            timeStampHardFilter.setPostion(TextHardFilter.Gravity.BOTTOM | TextHardFilter.Gravity.RIGHT, 30, 30);
-            filterList.add(timeStampHardFilter);
-        }
+        timeStampHardFilter = new TimeStampHardFilter(null, Color.TRANSPARENT, 30);
+        timeStampHardFilter.setPostion(TextHardFilter.Gravity.BOTTOM | TextHardFilter.Gravity.RIGHT, 30, 30);
+        filterList.add(timeStampHardFilter);
 
         iconHardFilter = new IconHardFilter(bitmap, rect);
         filterList.add(iconHardFilter);
@@ -200,6 +197,9 @@ public class RESVideoCore {
     }
 
     public boolean startStreaming(CallbackInterfaces.CapturedDataCallback capturedDataCallback) {
+
+        resPushStreamManager = (RESPushStreamManager) capturedDataCallback;
+
         synchronized (syncOp) {
             videoGLHander.sendMessage(videoGLHander.obtainMessage(VideoGLHandler.WHAT_START_STREAMING, capturedDataCallback));
             synchronized (syncIsLooping) {
