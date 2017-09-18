@@ -202,7 +202,7 @@ public class OpenGLESDemoActivity extends Activity implements View.OnClickListen
 //        frameLayout.removeAllViews();
 
         int rotation = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-        openGLESPushStreamInterfaces = new OpenGLESPushStreamInterfaces(mContext, rotation, 720, 480, 25, 500, 16000, 16, 1, 60);
+        openGLESPushStreamInterfaces = new OpenGLESPushStreamInterfaces(mContext, rotation, 1280, 720, 25, 500, 16000, 16, 1, 60);
 
         addLogo();
 
