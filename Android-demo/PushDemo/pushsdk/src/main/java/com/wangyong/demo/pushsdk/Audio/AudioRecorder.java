@@ -9,8 +9,6 @@ import com.wangyong.demo.pushsdk.BasicClasses.CallbackInterfaces;
 import com.wangyong.demo.pushsdk.BasicClasses.Constant;
 import com.wangyong.demo.pushsdk.BasicClasses.Loging;
 import com.wangyong.demo.pushsdk.BasicClasses.ThreadBase;
-import com.wangyong.demo.pushsdk.SpeexProcessor;
-import com.wangyong.demo.pushsdk.WebRTCAudioProcessing;
 
 /**
  * Created by wangyong on 2017/7/5.
