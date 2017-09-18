@@ -29,10 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.wangyong.demo.pushsdk.BasicClasses.CallbackInterfaces;
 import com.wangyong.demo.pushsdk.BasicClasses.Loging;
 import com.wangyong.demo.pushsdk.MagicFilter.filter.advanced.MagicBeautyFilter;
-import com.wangyong.demo.pushsdk.MagicFilter.filter.advanced.MagicFairytaleFilter;
 import com.wangyong.demo.pushsdk.RESPushStreamManager;
 import com.wangyong.demo.pushsdk.RESVideoTools.Filters.GPUImageCompatibleFilter;
 import com.wangyong.demo.pushsdk.RESVideoTools.Filters.IconHardFilter;
@@ -196,12 +194,12 @@ public class RESVideoCore {
         }
     }
 
-    public boolean startStreaming(CallbackInterfaces.CapturedDataCallback capturedDataCallback) {
+    public boolean startStreaming(RESPushStreamManager manager) {
 
-        resPushStreamManager = (RESPushStreamManager) capturedDataCallback;
+        resPushStreamManager = manager;
 
         synchronized (syncOp) {
-            videoGLHander.sendMessage(videoGLHander.obtainMessage(VideoGLHandler.WHAT_START_STREAMING, capturedDataCallback));
+            videoGLHander.sendMessage(videoGLHander.obtainMessage(VideoGLHandler.WHAT_START_STREAMING, resPushStreamManager));
             synchronized (syncIsLooping) {
                 if (!isPreviewing && !isStreaming) {
                     videoGLHander.removeMessages(VideoGLHandler.WHAT_DRAW);
@@ -468,7 +466,7 @@ public class RESVideoCore {
                     dstVideoEncoder.configure(dstVideoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
                     initMediaCodecGL(dstVideoEncoder.createInputSurface());
                     dstVideoEncoder.start();
-                    videoSenderThread = new VideoEncoderThread("VideoSenderThread", dstVideoEncoder, (CallbackInterfaces.CapturedDataCallback) msg.obj);
+                    videoSenderThread = new VideoEncoderThread("VideoSenderThread", dstVideoEncoder, (RESPushStreamManager) msg.obj);
                     videoSenderThread.start();
                 }
                 break;

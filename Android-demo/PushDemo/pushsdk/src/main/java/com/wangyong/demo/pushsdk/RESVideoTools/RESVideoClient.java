@@ -9,6 +9,7 @@ import android.media.MediaCodecInfo;
 
 import com.wangyong.demo.pushsdk.BasicClasses.CallbackInterfaces;
 import com.wangyong.demo.pushsdk.BasicClasses.Loging;
+import com.wangyong.demo.pushsdk.RESPushStreamManager;
 import com.wangyong.demo.pushsdk.RESVideoTools.Tools.CameraHelper;
 import com.wangyong.demo.pushsdk.RESVideoTools.Tools.RESConfig;
 import com.wangyong.demo.pushsdk.RESVideoTools.Tools.RESCoreParameters;
@@ -168,7 +169,7 @@ public class RESVideoClient {
         }
     }
 
-    public boolean startStreaming(CallbackInterfaces.CapturedDataCallback capturedDataCallback) {
+    public boolean startStreaming(RESPushStreamManager manager) {
         synchronized (syncOp) {
             if (!isStreaming && !isPreviewing) {
                 if (!startVideo()) {
@@ -178,7 +179,7 @@ public class RESVideoClient {
                 }
                 videoCore.updateCamTexture(camTexture);
             }
-            videoCore.startStreaming(capturedDataCallback);
+            videoCore.startStreaming(manager);
             isStreaming = true;
             return true;
         }

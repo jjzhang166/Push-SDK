@@ -3,9 +3,9 @@ package com.wangyong.demo.pushsdk.RESVideoTools;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 
-import com.wangyong.demo.pushsdk.BasicClasses.CallbackInterfaces;
 import com.wangyong.demo.pushsdk.BasicClasses.Constant;
 import com.wangyong.demo.pushsdk.BasicClasses.Loging;
+import com.wangyong.demo.pushsdk.RESPushStreamManager;
 
 import java.nio.ByteBuffer;
 
@@ -22,15 +22,15 @@ public class VideoEncoderThread extends Thread {
     private MediaCodec dstVideoEncoder;
     private final Object syncDstVideoEncoder = new Object();
 
-    private CallbackInterfaces.CapturedDataCallback capturedDataCallback;
+    private RESPushStreamManager resPushStreamManager = null;
     private long startEncodeTimestamp = -1;
 
-    VideoEncoderThread(String name, MediaCodec encoder, CallbackInterfaces.CapturedDataCallback capturedDataCallback) {
+    VideoEncoderThread(String name, MediaCodec encoder, RESPushStreamManager manager) {
         super(name);
         eInfo = new MediaCodec.BufferInfo();
         startTime = 0;
         dstVideoEncoder = encoder;
-        this.capturedDataCallback = capturedDataCallback;
+        this.resPushStreamManager = manager;
         startEncodeTimestamp = -1;
     }
 
@@ -65,8 +65,8 @@ public class VideoEncoderThread extends Thread {
                     case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                         Loging.Log(TAG, "MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:" + dstVideoEncoder.getOutputFormat().toString());
                         MediaFormat newFormat = dstVideoEncoder.getOutputFormat();
-                        if (null != capturedDataCallback) {
-                            capturedDataCallback.onCapturedDataUpdate(Constant.AVC_FORMAT, 0, newFormat, 0, eInfo);
+                        if (null != resPushStreamManager) {
+                            resPushStreamManager.onCapturedDataUpdate(Constant.AVC_FORMAT, 0, newFormat, 0, eInfo);
                         }
                         break;
                     default:
@@ -76,14 +76,14 @@ public class VideoEncoderThread extends Thread {
 
                         ByteBuffer encodedData = dstVideoEncoder.getOutputBuffers()[eobIndex];
 
-                        if (null != capturedDataCallback && 0 < eInfo.size) {
+                        if (null != resPushStreamManager && 0 < eInfo.size) {
                             if (0 >= startEncodeTimestamp)
                                 startEncodeTimestamp = eInfo.presentationTimeUs;
 
                             byte[] data = new byte[eInfo.size];
                             encodedData.get(data);
                             encodedData.clear();
-                            capturedDataCallback.onCapturedDataUpdate(Constant.AVC, 0, data, eInfo.presentationTimeUs - startEncodeTimestamp, eInfo);
+                            resPushStreamManager.onCapturedDataUpdate(Constant.AVC, 0, data, eInfo.presentationTimeUs - startEncodeTimestamp, eInfo);
                         }
 
                         dstVideoEncoder.releaseOutputBuffer(eobIndex, false);
