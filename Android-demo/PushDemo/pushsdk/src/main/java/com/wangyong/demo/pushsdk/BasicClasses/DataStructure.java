@@ -23,6 +23,7 @@ public interface DataStructure {
         // timestamp 微秒
         public long timestamp;
         public int flags;
+        public MediaCodec.BufferInfo format;
 
         public Data(int type, long idx, byte[] buf, long timestamp, int flags) {
             this.type = type;
@@ -30,6 +31,15 @@ public interface DataStructure {
             this.buf = buf;
             this.timestamp = timestamp;
             this.flags = flags;
+        }
+
+        public Data(int type, long idx, byte[] buf, long timestamp, int flags, MediaCodec.BufferInfo format) {
+            this.type = type;
+            this.idx = idx;
+            this.buf = buf;
+            this.timestamp = timestamp;
+            this.flags = flags;
+            this.format = format;
         }
     }
 }
