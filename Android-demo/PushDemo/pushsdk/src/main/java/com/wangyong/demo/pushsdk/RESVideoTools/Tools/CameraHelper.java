@@ -49,6 +49,7 @@ public class CameraHelper {
         Collections.sort(fpsRanges, new Comparator<int[]>() {
             @Override
             public int compare(int[] lhs, int[] rhs) {
+//                TODO replace targetFps by setting. WangYong
 //                int r = Math.abs(lhs[0] - targetFps) + Math.abs(lhs[1] - targetFps);
 //                int l = Math.abs(rhs[0] - targetFps) + Math.abs(rhs[1] - targetFps);
                 int r = Math.abs(lhs[0] - coreParameters.videoFPS) + Math.abs(lhs[1] - coreParameters.videoFPS);
